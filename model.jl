@@ -21,7 +21,9 @@ Base.@kwdef mutable struct Post
     reports::Int = 0
 end
 
-
+# Konstanten für unsere Simulation
+const max_days = 100
+const post_per_day = 100
 
 rng = Xoshiro(99)
 
@@ -33,13 +35,14 @@ reporting_dist_hate = Exponential(1.5)
 
 # Test für unsere reporting distribution
 using Plots
-test = [floor(rand(rng,reporting_dist_hate)) for x in 1:100000]
+test = [floor(rand(rng,reporting_dist_hate)) for x in 1:1000]
 histogram(test)
 
+# Generiere die Posts
 liste = Vector{Post}()
 id_count = 0
-for day in 1:100
-    for i in 1:100
+for day in 1:max_days
+    for i in 1:post_per_day
         global id_count = id_count + 1
         is_h = rand(rng, hate_dist)
         tmp = Post( id = id_count, 
@@ -53,7 +56,7 @@ for day in 1:100
     end 
 end
 
-
+# Helferfunktionen zum erkennen
 
 function isTPreport(p::Post)
     p.is_hate && p.reports > 0
@@ -75,6 +78,8 @@ liste
 
 report_conf_matrix = zeros(Int, 2, 2)
 
+
+# Reporting Matrix berechnen
 for i in 1:length(liste)
     if isTPreport(liste[i])
         report_conf_matrix[1,1] += 1
@@ -91,4 +96,7 @@ for i in 1:length(liste)
 end
 
 report_conf_matrix
+
+# Klassifier
+
 
