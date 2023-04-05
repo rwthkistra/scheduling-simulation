@@ -22,15 +22,15 @@ Base.@kwdef mutable struct Post
 end
 
 # Konstanten für unsere Simulation
-const max_days = 100
-const post_per_day = 100
+const max_days = 31
+const post_per_day = 10000
 
 rng = Xoshiro(99)
 
 # Unsere Verteilungen
 opinion_dist = Uniform(-1,1)
-hate_dist = Bernoulli(0.01) # 10 Prozent ist hate
-reporting_dist_non_hate = Exponential(0.8) # wenige Meldungen 
+hate_dist = Bernoulli(0.05) # 10 Prozent ist hate
+reporting_dist_non_hate = Exponential(0.5) # wenige Meldungen 
 reporting_dist_hate = Exponential(1.5)
 
 # Test für unsere reporting distribution
