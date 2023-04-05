@@ -95,8 +95,62 @@ for i in 1:length(liste)
     end
 end
 
-report_conf_matrix
+report_conf_matrix#
 
 # Klassifier
+
+perfect_conf_matrix = [[1,0.0]  [0.0,1.0] ]
+kistra_conf_matrix = [[0.7,0.3]  [0.1,0.9] ]
+
+
+
+function classify(conf_matrix::Matrix{Float64}, p::Post, rng::AbstractRNG)
+    probability = 0.0
+    if p.is_hate 
+        #println("Ishate")
+        probability = conf_matrix[1,1]
+    else
+        #println("Is non hate")
+        probability = conf_matrix[2,2]
+    end
+
+    guess = rand(rng, Bernoulli(probability))
+
+    if guess 
+        p.is_hate
+    else
+        !p.is_hate
+    end
+end
+
+
+
+#classify(perfect_conf_matrix,Post(is_hate = true),rng)
+
+
+ki_conf_matrix = zeros(Int, 2, 2)
+for i in 1:length(liste)
+    if liste[i].reports > 0
+        cls_result = classify(kistra_conf_matrix, liste[i], rng)
+        # hass korrekt gefunden
+        if liste[i].is_hate && cls_result
+            ki_conf_matrix[1,1] += 1
+        end
+        # hass inkorrekt gefunden
+        if (!liste[i].is_hate) && cls_result
+            ki_conf_matrix[1,2] += 1
+        end
+        # keinhass korrekt gefunden
+        if (!liste[i].is_hate) && !cls_result
+            ki_conf_matrix[2,2] += 1
+        end
+        # keinhass inkorrekt gefunden
+        if (liste[i].is_hate) && !cls_result
+            ki_conf_matrix[2,1] += 1
+        end
+    end
+end
+
+ki_conf_matrix
 
 
