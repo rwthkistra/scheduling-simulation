@@ -172,3 +172,9 @@ ki_conf_matrix
 #   - Gutes Event: Anzahl der Meldungen verdoppelt sich, Verteilung bleibt gleich. z.B. Festplattenübergabe durch Dritte.
 #   - Schlechtes Event: Anzahl der Meldungen verdoppelt sich, es steigen aber nur die false positives. 
 #       z.B. Ermordung eines Polizisten führt dazu, dass Beiträge mit inhaltlichem Bezug von Nutzern gemeldet werden, obwohl das gar kein Hass ist. 
+
+# Diskussionspunkte mit LMU:
+# Hypothese Julian: Rechts postet mehr Hass, Links meldet mehr?
+# Ergebnisse Ursula Folie 24: Nutzer beschäftigen sich mit Hatespeech, wenn sie persönlich betroffen sind oder der Post sie entsetzt. 
+#   - Indikator 1: Entsetzen und Sorge. Operationalisierung über Distanz zur eigenen Meinung?
+#   - Indikator 2: Pers. Betroffenheit. Operationalisierung über Hate + Verbindung? 
