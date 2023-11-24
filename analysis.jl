@@ -2,7 +2,7 @@ using OnlineStats
 
 include("simulation.jl")
 
-n = 1
+n = 4
 number_of_days = 365
 confusion_matrix = [[0.7, 0.3] [0.1, 0.9]]
 params = (2, 1600, number_of_days, confusion_matrix)
@@ -32,7 +32,7 @@ ltr_is_fn_mean = [
 
 
 
-@time for i in 1:n
+@time Threads.@threads for i in 1:n
     ltr = []
     r = []
     ltr_fn = []
