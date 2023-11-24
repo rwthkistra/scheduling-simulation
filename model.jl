@@ -15,18 +15,18 @@ using Plots
 
 Base.@kwdef mutable struct Post
     id::Int = 0
-    timestamp::Int = 1 # Spielrunde, bei der der Post abgesetzt wurde.
-    opinion::Float64 = 0 # -1 bis 1, -1 ist links, 1 ist rechts. Beeinflusst is_hate und reports.
-    problematic::Float64 = 0 # 0 bis 1, 0 ist unproblematisch, 1 ist problematisch. Beeinflusst is_hate und reports.
-    triggerpoint::Bool = false # Hakenkreuz, Beleidigung usw. dabei? Beeinflusst is_hate und reports.
-    #reaction::Float64 = 0 # 0 bis 1, 0 ist wenige Reaktionen (Likes, Kommentare), 1 ist viele. Beeinflusst und reports.
-    #hot_topic::Bool = false # Reizthema (z.B. Religion) nein/ja? Beeinflusst reports.
-    group_as_target::Bool = false # Betrifft eine Gruppe, mit der sich andere solidarisieren nein/ja? Beeinflusst reports.
-    #media_reach::Float64 = 0 # Reichweite 0 wenig bis 1 viel. Beeinflusst reports.
-    #known_author::Bool = false # Ist eine persönliche Verbindung vorhanden nein/ja? Beeinflusst reports.
-    impact::Float64 = 0 # Kombination aus reaction und reach
-    is_hate::Bool = false # ground truth. Handelt es sich um Hatespeech?
-    reports::Int = 0 # Anzahl, wie oft der Beitrag gemeldet wurde.
+    timestamp::Int = 1              # Spielrunde, bei der der Post abgesetzt wurde.
+    opinion::Float64 = 0            # -1 bis 1, -1 ist links, 1 ist rechts. Beeinflusst is_hate und reports.
+    problematic::Float64 = 0        # 0 bis 1, 0 ist unproblematisch, 1 ist problematisch. Beeinflusst is_hate und reports.
+    triggerpoint::Bool = false      # Hakenkreuz, Beleidigung usw. dabei? Beeinflusst is_hate und reports.
+    #reaction::Float64 = 0          # 0 bis 1, 0 ist wenige Reaktionen (Likes, Kommentare), 1 ist viele. Beeinflusst und reports.
+    #hot_topic::Bool = false        # Reizthema (z.B. Religion) nein/ja? Beeinflusst reports.
+    group_as_target::Bool = false   # Betrifft eine Gruppe, mit der sich andere solidarisieren nein/ja? Beeinflusst reports.
+    #media_reach::Float64 = 0       # Reichweite 0 wenig bis 1 viel. Beeinflusst reports.
+    #known_author::Bool = false     # Ist eine persönliche Verbindung vorhanden nein/ja? Beeinflusst reports.
+    impact::Float64 = 0             # Kombination aus reaction und reach
+    is_hate::Bool = false           # ground truth. Handelt es sich um Hatespeech?
+    reports::Int = 0                # Anzahl, wie oft der Beitrag gemeldet wurde.
 end
 
 # Konstanten für unsere Simulation
