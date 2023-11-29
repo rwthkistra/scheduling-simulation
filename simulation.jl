@@ -2,9 +2,12 @@ using Agents
 using Random
 using Distributions
 using Plots
+using ProgressMeter
 
 include("scheduling_strategies.jl")
+include("settings.jl")
 
+# Structure dataype for out posts
 Base.@kwdef mutable struct Post
     id::Int
     created_at::Int
@@ -18,28 +21,19 @@ Base.@kwdef mutable struct Post
 end
 
 
-
-# Constant distributions and values
-opinion_dist = Uniform(-1, 1)
-hate_dist = Bernoulli(0.05) # 10 Prozent ist hate
-reporting_dist_non_hate = Exponential(0.5) # wenige Meldungen 
-reporting_dist_hate = Exponential(1.5)
-prob_to_report = 0.2
-kistra_conf_matrix = [[0.7, 0.3] [1, 0]]
-REVIEWS_PER_DAY = 400
-
 mutable struct Employee
     capacity::Int
 end
 
-global id_count = 0
-function generate_posts(num_posts, day, rng)
+#global id_count = 0
+function generate_posts(num_posts, max_id, day, rng)
+    local_id_count = max_id
     posts = Vector{Post}()
     for i in 1:rand(rng, 1:num_posts)
-        global id_count = id_count + 1
+        local_id_count = local_id_count + 1
         is_hate = rand(rng, hate_dist)
         new_post = Post(
-            id=id_count,
+            id=local_id_count,
             created_at=day,
             is_hate=is_hate,
             kistra_is_hate=false,
@@ -56,14 +50,16 @@ end
 
 function flag_posts_as_reported!(posts, rng)
     for post in posts
-        if rand(rng) < prob_to_report
+        if rand(rng, reporting_dist_overall) 
             post.reports = 1
+            @debug "Post reported" post.id
         end
     end
 end
 
 function classify_posts_by_kistra!(posts, conf_matrix, rng)
     for post in posts
+        # temp initialize
         probability = 0.0
         if post.is_hate
             probability = conf_matrix[1, 1]
@@ -75,6 +71,7 @@ function classify_posts_by_kistra!(posts, conf_matrix, rng)
 
         if guess
             post.kistra_is_hate = post.is_hate
+            #@debug "Kistra is right" post.id
         else
             post.kistra_is_hate = !post.is_hate
             post.kistra_fp = !post.is_hate
@@ -85,6 +82,8 @@ end
 
 function sort_posts_by_scheduling_strategy!(posts, strategy_functions, rng)
     queues = Vector{Vector{Post}}()
+    #debug
+    #fifo(posts,rng)
     for strategy_function in strategy_functions
         queue = strategy_function(posts, rng)
         push!(queues, queue)
@@ -134,11 +133,12 @@ end
 #  -> Post wird ggf. reported (10% Chance)
 
 function simulate(
-    number_of_employees,
-    num_posts_per_day,
+    number_of_employees=1,
+    num_posts_per_day=400,
+    reviews_per_day = 400,
     number_of_days=31,
     confusion_matrix=kistra_conf_matrix,
-    scheduling_strategy_functions=[fifo],
+    scheduling_strategy_functions=[kistra],
     seed=99
 )
     rng = Xoshiro(seed)
@@ -146,7 +146,8 @@ function simulate(
     all_posts = Vector{Post}()
     left_to_review = Vector{Post}()
 
-    post_capacity = number_of_employees * REVIEWS_PER_DAY
+    @debug "Simulating $number_of_days days with $number_of_employees employees"
+    post_capacity = number_of_employees * reviews_per_day
 
     ltr_ih = Vector{Int}()
     ltr_ifn = Vector{Int}()
@@ -154,25 +155,34 @@ function simulate(
     reviewed_hate = Vector{Int}()
     reviewed_fp_delay = Vector{Int}()
     reviewed_fn_delay = Vector{Int}()
+    max_id = 0
 
     for day in 1:number_of_days
-        # println("Day: $day")
+        @debug "Day: $day"
+        #day = 1
+
         # Generate posts for the day based on the scheduling strategy
-        posts = generate_posts(num_posts_per_day, day, rng)
+        posts = generate_posts(num_posts_per_day, max_id, day, rng)
+        max_id = posts[end].id
+        @debug "Number of posts generated: $(length(posts))"
         # Add posts to the list of all posts
         push!(all_posts, posts...)
 
         # Flag posts as reported based on the reporting probability
         flag_posts_as_reported!(posts, rng)
+        @debug filter(post -> post.reports > 0, posts)
 
         # Classify posts using the AI
         classify_posts_by_kistra!(posts, confusion_matrix, rng)
 
         # Add posts to the list of posts left to review from previous days
         push!(posts, left_to_review...)
+        @debug "Number of posts to review: $(length(posts))"
 
         # Sort posts based on the scheduling strategy
         posts = sort_posts_by_scheduling_strategy!(posts, scheduling_strategy_functions, rng)
+        @debug "Which post ids are there in which order" [post.id for post in posts]
+        @debug "How much hate in posts:" sum([post.is_hate for post in posts])
         # Assign posts to employees for review
         left_to_review, is_hate, fn_delay, fp_delay = assign_posts_to_employees(
             posts,
@@ -180,6 +190,10 @@ function simulate(
             all_posts,
             day
         )
+        @debug is_hate
+        @debug left_to_review
+        @debug fn_delay
+        @debug fp_delay
         # How many posts are left to review and is_hate
         left_to_review_and_is_hate = [post.is_hate for post in left_to_review]
         left_to_review_and_is_fn = [post.kistra_fn for post in left_to_review]
@@ -187,10 +201,11 @@ function simulate(
         push!(ltr_ih, sum(left_to_review_and_is_hate))
         push!(ltr_ifn, sum(left_to_review_and_is_fn))
         push!(ltr_ifp, sum(left_to_review_and_is_fp))
+
         push!(reviewed_hate, length(is_hate))
         push!(reviewed_fn_delay, sum(fn_delay))
         push!(reviewed_fp_delay, sum(fp_delay))
-        # println("Number of posts left to review: $(length(left_to_review))")
+        @debug "Number of posts left to review: $(length(left_to_review))"
     end
 
     # Plot the number of posts left to review that are hate
