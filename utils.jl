@@ -22,6 +22,6 @@ function plotconfusionmatrix(m, filename="output/kistra_conf_matrix.png")
     savefig(filename)
 end
 
-plotconfusionmatrix(confusionmatrix(0.3, 0.1), "output/kistra_conf_matrix_3_1.png")
+#plotconfusionmatrix(confusionmatrix(0.3, 0.1), "output/kistra_conf_matrix_3_1.png")
 
 
