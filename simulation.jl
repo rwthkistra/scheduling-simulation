@@ -157,7 +157,10 @@ function simulate(
     reviewed_fn_delay = Vector{Int}()
     max_id = 0
 
-    for day in 1:number_of_days
+    @showprogress for day in 1:number_of_days
+
+        
+
         @debug "Day: $day"
         #day = 1
 
