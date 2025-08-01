@@ -1,12 +1,12 @@
 using StatsPlots
-include("utils.jl")
+include("src/utils.jl")
 
 # Constant distributions and values
 hate_dist = Bernoulli(0.05) # 5 Prozent ist hate
 reporting_dist_non_hate = Exponential(0.5) # wenige Meldungen 
 reporting_dist_hate = Exponential(1.5) # more reports
 reporting_dist_overall = Bernoulli(0.2) # overall reporting probability
-kistra_conf_matrix = confusionmatrix(0.3, 0.1) # default confusion matrix
+kistra_conf_matrix = confusionmatrix(0.122, 0.574) # default confusion matrix
 
 
 

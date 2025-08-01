@@ -29,3 +29,4 @@ output.zip
 
 # all output figures
 output/
+.DS_Store

@@ -22,4 +22,4 @@ end
 
 runsim(replications=1,
     confusion_matrix=confusionmatrix(0.3, 0.1), run_id="verylongtest",
-    workers=2, posts_per_day=100, post_count=400, number_of_days=10000)
+    workers=2, posts_per_day=100, post_count=400, number_of_days=3650)

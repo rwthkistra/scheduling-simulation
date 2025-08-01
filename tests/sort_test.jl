@@ -1,9 +1,9 @@
 using BenchmarkTools
-include("../scheduling_strategies.jl")
+include("../src/scheduling_strategies.jl")
 
 
 ## this test using the Post struct from simulation.jl
-include("../simulation.jl")
+include("../model.jl")
 
 q1 = [
     Post(id=1, created_at=1, reviewed_at=1, is_hate=true, kistra_is_hate=false, kistra_confidence=0.0, kistra_fp=false, kistra_fn=false, reports=0),

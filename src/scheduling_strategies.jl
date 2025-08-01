@@ -7,7 +7,9 @@ function fifo(posts, rng)
 end
 
 function kistra(posts, rng)
-    return sort(posts, by = post -> !post.kistra_is_hate)
+
+    #return sort(posts, by = post -> !post.kistra_is_hate)
+    return sort(posts, by = post -> post.kistra_confidence, rev = true)
 end
 
 function deterministic_shuffle(posts, rng)

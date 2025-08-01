@@ -1,24 +1,42 @@
 using OnlineStats
 using Logging
 
-debuglogger = ConsoleLogger(stderr, Logging.Debug)
-#global_logger(debuglogger)
+# debuglogger = ConsoleLogger(stderr, Logging.Debug)
+# global_logger(debuglogger)
 
-include("simulation.jl")
-include("scheduling_strategies.jl")
+include("model.jl")
+include("src/scheduling_strategies.jl")
 
-
+"""
+Runs the simulation with the given parameters.
+- `replications`: Number of times to run the simulation (default: 1).
+- `number_of_days`: Total number of days to simulate (default: 365).
+- `confusion_matrix`: The confusion matrix to use for the simulation (default: confusionmatrix(0.3, 0.1)).
+- `workers`: Number of workers to simulate (default: 1).
+- `post_count`: Total number of posts a worker can review (default: 100).
+- `posts_per_day`: Number of posts to generate per day (default: 100).
+- `run_id`: Identifier for the run (default: "001").
+"""
 function runsim(;replications=1,
     number_of_days=365,
     confusion_matrix=confusionmatrix(0.3, 0.1),
     workers=1,
+    post_count=150,
     posts_per_day=100,
-    post_count=200,
     run_id="001")
 
 
     # generate params object
     params = (workers, post_count, posts_per_day, number_of_days, confusion_matrix)
+    
+    # print a summary of the parameters
+    @info "Running simulation with parameters: "
+    @info "Workers: $workers"
+    @info "Post generated per day: $post_count"
+    @info "Posts reviewed per worker: $posts_per_day"
+    @info "Number of Days: $number_of_days"
+    @info "Confusion Matrix: $confusion_matrix"
+    @info "Run ID: $run_id"
 
     mkpath("output")
     plotconfusionmatrix(confusion_matrix, "output/kistra_conf_matrix_$(run_id).png")
@@ -31,7 +49,7 @@ function runsim(;replications=1,
     push!(strategies, [fifo])
     push!(strategies, [kistra])
     push!(strategies, [fifo, kistra])
-    push!(strategies, [fifo, kistra, deterministic_shuffle])
+    #push!(strategies, [fifo, kistra, deterministic_shuffle])
     #push!(strategies,[fifo,deterministic_shuffle])
 
 
@@ -59,6 +77,9 @@ function runsim(;replications=1,
             @debug "-- Strategies: $strats"
             #global id_count = 0
             #strats = strategies[1]
+            # print the strategy name
+            @info "--- Running simulation for strategy: $(strats)"
+
             ltr_i, r_i, _, ltr_fn_i = simulate(params..., strats, i)
             push!(ltr, ltr_i)
             push!(r, r_i)
@@ -117,6 +138,8 @@ function runsim(;replications=1,
     p = plot(p1, p2, layout=(2, 1))
     savefig("output/plot_$(run_id).png")
     p
+
+    # print the status of the image generation 
+    @info "Simulation completed. Results saved to output/plot_$(run_id).png"
 end
 
-#runsim()

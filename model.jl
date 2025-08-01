@@ -4,8 +4,9 @@ using Distributions
 using Plots
 using ProgressMeter
 
-include("scheduling_strategies.jl")
+include("src/scheduling_strategies.jl")
 include("settings.jl")
+include("confidence_simulation.jl")
 
 # Structure dataype for out posts
 Base.@kwdef mutable struct Post
@@ -72,10 +73,22 @@ function classify_posts_by_kistra!(posts, conf_matrix, rng)
         if guess
             post.kistra_is_hate = post.is_hate
             #@debug "Kistra is right" post.id
+            # set the confidence 
+            if post.is_hate
+                post.kistra_confidence = get_confidence("tp", rng)
+            else
+                post.kistra_confidence = get_confidence("tn", rng)
+            end
         else
             post.kistra_is_hate = !post.is_hate
             post.kistra_fp = !post.is_hate
             post.kistra_fn = post.is_hate
+
+            if post.is_hate
+                post.kistra_confidence = get_confidence("fp", rng)
+            else
+                post.kistra_confidence = get_confidence("fn", rng)
+            end
         end
     end
 end
@@ -132,6 +145,10 @@ end
 
 #  -> Post wird ggf. reported (10% Chance)
 
+
+"""
+Simulates the review process for a given number of employees, posts per day, and days.
+"""
 function simulate(
     number_of_employees=1,
     num_posts_per_day=400,
